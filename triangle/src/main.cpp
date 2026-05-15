@@ -15,7 +15,7 @@ const char *vertexShaderSource = "#version 330 core \n"
     "layout (location = 0) in vec3 aPos;\n"
     "void main()\n"
     "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\n\0";
 const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
@@ -92,7 +92,7 @@ int main()
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
     // test compilation
-    glGetProgramiv(shaderProgram, GL_COMPILE_STATUS, &success);
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success)
     {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
@@ -106,12 +106,16 @@ int main()
         -0.5f, -0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
          0.0f,  0.5f, 0.0f
-    };  
+    };
     // Set up buffers 
     // ----------------------------------------
     // Set up Vertex Buffer
-    unsigned int VBO;
+    unsigned int VBO, VAO;
+    glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+
+    // Bind vertex array
+    glBindVertexArray(VAO);
     // Bind Vertex Buffer
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // Copy defined vertex data into buffer memory
@@ -119,7 +123,7 @@ int main()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-
+    
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -136,7 +140,8 @@ int main()
         
         // draw a triangle
         glUseProgram(shaderProgram);
-
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
